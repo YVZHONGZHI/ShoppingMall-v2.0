@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+        <meta charset="UTF-8">
+		<title>商品详情页</title>
+        <script src="/static/jQuery.js"></script>
+        <script src="/static/mysetup.js"></script>
+        <link rel="stylesheet" href="/static/css/goods_detail.css">
+        <script type="text/javascript" src="/static/js/goods_detail.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+		<link href="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body>
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/site/{{ mall.site_name }}/">{{ mall.site_title }}</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="/home/">商品</a></li>
+                        <li><a href="/vip/">精品推荐</a></li>
+                    </ul>
+                    <form class="navbar-form navbar-left">
+                        <div class="form-group">
+                            <label for="search"></label>
+                            <input type="text" id="search" class="form-control" placeholder="输入关键字">
+                        </div>
+                        <input type="button" class="btn btn-default" value="搜索" onclick="test()">
+                    </form>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if request.user.is_authenticated %}
+                            <li><a>{{ request.user.username }}</a></li>
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">更多操作 <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="" data-toggle="modal" data-target=".bs-example-modal-lg">修改密码</a></li>
+                                    <li><a href="" data-toggle="modal" data-target=".bs-example-modal-sm">修改头像</a></li>
+                                    <li><a href="/backend/">后台管理</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="{% url 'logout' %}">退出登录</a></li>
+                                </ul>
+                                {% include 'components/set_password.html' %}
+                                {% include 'components/set_avatar.html' %}
+                            </li>
+                        {% else %}
+                            <li><a href="{% url 'reg' %}">注册</a></li>
+                            <li><a href="{% url 'login' %}">登录</a></li>
+                        {% endif %}
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-3">
+                    {% load mytag %}
+                    {% left_menu site_name %}
+                </div>
+                <div class="col-md-9">
+                    <h1>
+                        {{ goods_obj.shop_name }}
+                    </h1>
+                    <h2>
+                        ￥{{ goods_obj.shop_price }}
+                    </h2>
+                    <div class="media-left">
+                        <img class="media-object" src="/media/{{ goods_obj.shop_picture }}" width="125" height="125" alt="商品图片">
+                    </div>
+                    <div class="media-body">
+                        {{ goods_obj.content|safe }}
+                    </div>
+                    <div class="clearfix">
+                        <div id="div_digg">
+                            <div class="diggword" id="car_tips" style="color: red"></div>
+                            <button class="btn btn-primary" id="id_car" goods_id="{{ goods_obj.pk }}">&nbsp;&nbsp;&nbsp;&nbsp;加入购物车&nbsp;&nbsp;&nbsp;&nbsp;</button>
+                            <div class="diggit action">
+                                <span class="diggnum" id="digg_count" goods_id="{{ goods_obj.pk }}">
+                                    {{ goods_obj.up_num }}
+                                </span>
+                            </div>
+                            <div class="buryit action">
+                                <span class="burynum" id="bury_count" goods_id="{{ goods_obj.pk }}">
+                                    {{ goods_obj.down_num }}
+                                </span>
+                            </div>
+                            <div class="clear"></div>
+                            <div class="diggword" id="digg_tips" style="color: red"></div>
+                        </div>
+                    </div>
+                    <div>
+                        <ul class="list-group">
+                            {% for comment in comment_list %}
+                                <li class="list-group-item">
+                                    <span>
+                                        第{{ forloop.counter }}楼
+                                    </span>
+                                    <span>
+                                        &nbsp;·&nbsp;&nbsp;{{ comment.content_time|date:'Y-m-d H:i:s' }}
+                                    </span>
+                                    <span>
+                                        &nbsp;·&nbsp;&nbsp;{{ comment.user.username }}
+                                    </span>
+                                    <span>
+                                        <br>
+                                        <br>
+                                        <a class="pull-right reply" username="{{ comment.user.username }}" comment_id="{{ comment.pk }}" style='text-decoration:none'>回复</a>
+                                    </span>
+                                    <div>
+                                        {% if comment.parent_id %}
+                                            <p>@&nbsp;{{ comment.parent.user.username }}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{{ comment.content }}</p>
+                                        {% else %}
+                                            {{ comment.content }}
+                                        {% endif %}
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    {% if request.user.is_authenticated %}
+                        <div>
+                            <p>
+                                <span class="glyphicon glyphicon-comment"></span>发表评论
+                            </p>
+                            <div>
+                                <label for="id_comment"></label>
+                                <textarea name="comment" id="id_comment" goods_id="{{ goods_obj.pk }}" userName="{{ request.user.username }}" cols="60" rows="10"></textarea>
+                            </div>
+                            <button class="btn btn-primary" id="id_submit">提交评论</button>
+                            <span id="error"></span>
+                        </div>
+                    {% else %}
+                        <li><a href="{% url 'reg' %}" style='text-decoration:none'>注册</a></li>
+                        <li><a href="{% url 'login' %}" style='text-decoration:none'>登录</a></li>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

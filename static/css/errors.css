@@ -1,0 +1,12 @@
+body {
+    padding: 10px;
+    font-size: 14px;
+    max-width: 550px;
+    min-height: 200px;
+    margin: 8% auto 0;
+}
+
+p {
+    color: #555;
+    margin: 10px 10px;
+}

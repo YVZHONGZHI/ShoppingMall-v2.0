@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="zh">
+	<head>
+        <meta charset="UTF-8">
+		<title>后台管理</title>
+        <script src="/static/jQuery.js"></script>
+        <script src="/static/mysetup.js"></script>
+        <script type="text/javascript" src="/static/js/backend.js"></script>
+        <script src="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+		<link href="https://cdn.bootcss.com/twitter-bootstrap/3.4.1/css/bootstrap.min.css" rel="stylesheet">
+	</head>
+	<body>
+        <nav class="navbar navbar-inverse">
+            <div class="container-fluid">
+                <!-- Brand and toggle get grouped for better mobile display -->
+                <div class="navbar-header">
+                    <a class="navbar-brand" href="/site/{{ request.user.mall.site_name }}/">{{ request.user.mall.site_title }}</a>
+                </div>
+
+                <!-- Collect the nav links, forms, and other content for toggling -->
+                <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+                    <ul class="nav navbar-nav">
+                        <li><a href="/home/">商品</a></li>
+                        <li><a href="/vip/">精品推荐</a></li>
+                    </ul>
+                    <form class="navbar-form navbar-left">
+                        <div class="form-group">
+                            <label for="search"></label>
+                            <input type="text" id="search" class="form-control" placeholder="输入关键字">
+                        </div>
+                        <input type="button" class="btn btn-default" value="搜索" onclick="test()">
+                    </form>
+                    <ul class="nav navbar-nav navbar-right">
+                        {% if request.user.is_authenticated %}
+                            <li><a>{{ request.user.username }}</a></li>
+                            <li class="dropdown">
+                                <a class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">更多操作 <span class="caret"></span></a>
+                                <ul class="dropdown-menu">
+                                    <li><a href="" data-toggle="modal" data-target=".bs-example-modal-lg">修改密码</a></li>
+                                    <li><a href="" data-toggle="modal" data-target=".bs-example-modal-sm">修改头像</a></li>
+                                    <li><a>后台管理</a></li>
+                                    <li role="separator" class="divider"></li>
+                                    <li><a href="{% url 'logout' %}">退出登录</a></li>
+                                </ul>
+                                {% include 'components/set_password.html' %}
+                                {% include 'components/set_avatar.html' %}
+                            </li>
+                        {% else %}
+                            <li><a href="{% url 'reg' %}">注册</a></li>
+                            <li><a href="{% url 'login' %}">登录</a></li>
+                        {% endif %}
+                    </ul>
+                </div><!-- /.navbar-collapse -->
+            </div><!-- /.container-fluid -->
+        </nav>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-2">
+                    <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                        <div class="panel panel-default">
+                            <div class="panel-heading" role="tab" id="headingOne">
+                                <h4 class="panel-title">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapseOne" aria-expanded="true" aria-controls="collapseOne" style='text-decoration:none'>
+                                        更多操作
+                                    </a>
+                                </h4>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                <div class="panel-body">
+                                    <a href="/add_goods/" style='text-decoration:none'>发售商品</a>
+                                </div>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                <div class="panel-body">
+                                    <a href="" style='text-decoration:none'>联系客服</a>
+                                </div>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                <div class="panel-body">
+                                    <a href="" style='text-decoration:none'>意见反馈</a>
+                                </div>
+                            </div>
+                            <div id="collapseOne" class="panel-collapse collapse in" role="tabpanel" aria-labelledby="headingOne">
+                                <div class="panel-body">
+                                    <a href="" style='text-decoration:none'>&nbsp;&nbsp;&nbsp;其他</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-10">
+                    <div>
+
+                        <!-- Nav tabs -->
+                        <ul class="nav nav-tabs" role="tablist">
+                            <li role="presentation" class="active"><a href="#shop_car" aria-controls="shop_car" role="tab" data-toggle="tab">购物车</a></li>
+                            <li role="presentation"><a href="#cash_flow" aria-controls="cash_flow" role="tab" data-toggle="tab">流水</a></li>
+                            <li role="presentation"><a href="#goods" aria-controls="goods" role="tab" data-toggle="tab">商品</a></li>
+                            <li role="presentation"><a href="#logistics" aria-controls="logistics" role="tab" data-toggle="tab">物流</a></li>
+                            <li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">设置</a></li>
+                        </ul>
+
+                        <!-- Tab panes -->
+                        <div class="tab-content">
+                            <div role="tabpanel" class="tab-pane fade in active" id="shop_car">
+                                <table class="table table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>&nbsp;&nbsp;商品名称</th>
+                                            <th>&nbsp;&nbsp;商品单价</th>
+                                            <th>&nbsp;&nbsp;&nbsp;加入购物车时间</th>
+                                            <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;操作</th>
+                                            <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for goods in car_list %}
+                                            <tr>
+                                                <td>
+                                                    <a href="/site/{{ goods.goods.mall.site_name }}/goods/{{ goods.goods.pk }}/" style='text-decoration:none'>
+                                                        {{ goods.goods.shop_name }}
+                                                    </a>
+                                                </td>
+                                                <td>￥{{ goods.goods.shop_price }}</td>
+                                                <td>{{ goods.shop_time|date:'Y-m-d H:i:s' }}</td>
+                                                <td>
+                                                    <button class="pay" goods_id="{{ goods.goods.pk }}">支付订单</button>
+                                                </td>
+                                                <td>
+                                                    <button class="cancel" goods_id="{{ goods.goods.pk }}">取消订单</button>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" id="cash_flow">
+                                <table class="table table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;交易时间</th>
+                                            <th>买入</th>
+                                            <th>卖出</th>
+                                            <th>商品名称</th>
+                                            <th>&nbsp;交易金额</th>
+                                            <th>&nbsp;&nbsp;账户余额</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for flow in flow_list %}
+                                            <tr>
+                                                <td>{{ flow.pay_time|date:'Y-m-d H:i:s' }}</td>
+                                                <td>&nbsp;&nbsp;{{ flow.buy_num }}</td>
+                                                <td>&nbsp;&nbsp;{{ flow.sell_num }}</td>
+                                                <td>
+                                                    <a href="/site/{{ flow.goods.mall.site_name }}/goods/{{ flow.goods.pk }}/" style='text-decoration:none'>
+                                                        {{ flow.goods.shop_name }}
+                                                    </a>
+                                                </td>
+                                                <td>￥{{ flow.goods.shop_price }}</td>
+                                                <td>￥{{ flow.balance_flow }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" id="goods">
+                                <table class="table table-hover table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>&nbsp;&nbsp;商品名称</th>
+                                            <th>&nbsp;&nbsp;商品单价</th>
+                                            <th>点赞数</th>
+                                            <th>评论数</th>
+                                            <th>操作</th>
+                                            <th>操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for goods in goods_list %}
+                                            <tr>
+                                                <td>
+                                                    <a href="/site/{{ goods.mall.site_name }}/goods/{{ goods.pk }}/" style='text-decoration:none'>
+                                                        {{ goods.shop_name }}
+                                                    </a>
+                                                </td>
+                                                <td>￥{{ goods.shop_price }}</td>
+                                                <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ goods.up_num }}</td>
+                                                <td>&nbsp;&nbsp;&nbsp;&nbsp;{{ goods.comment_num }}</td>
+                                                <td>
+                                                    <a style='text-decoration:none'>编辑</a>
+                                                </td>
+                                                <td>
+                                                    <a style='text-decoration:none'>删除</a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" id="logistics">
+                            </div>
+                            <div role="tabpanel" class="tab-pane fade" id="settings">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
